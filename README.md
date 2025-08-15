@@ -1,5 +1,3 @@
-# terminal of fortune
-
 ```
 ┌┬┐┌─┐┬─┐┌┬┐┬┌┐┌┌─┐┬    ┌─┐┌─┐  ┌─┐┌─┐┬─┐┌┬┐┬ ┬┌┐┌┌─┐
  │ ├┤ ├┬┘│││││││├─┤│    │ │├┤   ├┤ │ │├┬┘ │ │ ││││├┤
@@ -7,6 +5,7 @@
 ```
 
 tool for selecting random person/item from list in terminal
+
 items are stored in txt file
 
 ## Installation

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -31,7 +30,6 @@ func readFiles() {
 		userFile = files[0]
 	default:
 		userFile, err = runChooser(files)
-		log.Println(userFile, err)
 		if err != nil {
 			fmt.Println("Error running chooser:", err)
 			os.Exit(1)

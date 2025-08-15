@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/oktalz/terminal-of-fortune/data"
 )
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -13,35 +12,33 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			data.StateSet(data.StateFinished)
+			m.state = StateFinished
 			return m, tea.Quit
 		case "r":
-			if data.State() != data.StateRunning {
+			if m.state != StateRunning {
 				// curently its not safe to do it while running
 				return m, nil
 			}
 			// randomise users in slice
-			data.Process(func(users []data.User) {
-				for i := len(users) - 1; i > 0; i-- {
-					j := rand.Intn(i)
-					users[i], users[j] = users[j], users[i]
-					if data.Winner() == (i) {
-						data.WinnerSet(j)
-					} else if data.Winner() == (j) {
-						data.WinnerSet(i)
-					}
+			for i := len(m.users) - 1; i > 0; i-- {
+				j := rand.Intn(i)
+				m.users[i], m.users[j] = m.users[j], m.users[i]
+				if m.winner == (i) {
+					m.winner = j
+				} else if m.winner == (j) {
+					m.winner = i
 				}
-			})
+			}
 			return m, nil
 		// case "delete":
-		// 	if data.State() != data.StateRunning {
+		// 	if m.state != StateRunning {
 		// 		// curently its not safe to do it while running
 		// 		return m, nil
 		// 	}
 		// 	// randomise users in slice
-		// 	data.Process(func(users []data.User) {
+		// 	Process(func(users []User) {
 		// 		// remove all users that have flag Removed true
-		// 		slices.DeleteFunc(users, func(u data.User) bool {
+		// 		slices.DeleteFunc(users, func(u User) bool {
 		// 			return u.Removed
 		// 		})
 		// 	})
@@ -49,12 +46,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "s", "c", " ", "enter":
 			if !m.raceStarted {
 				m.raceStarted = true
-				data.StateSet(data.StateRunning)
+				m.state = StateRunning
 				return m, tickCmd()
 			}
 			if m.gameOver {
 
-				if data.UsersLen() == 0 {
+				if len(m.users) == 0 {
 					return m, tea.Quit
 				}
 
@@ -62,15 +59,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				// Reset game
 				m.gameOver = false
-				data.Process(func(users []data.User) {
-					for i := range users {
-						users[i].Percentage = 0
-						users[i].Progress.SetPercent(0)
-					}
-				})
+				for i := range m.users {
+					m.users[i].Percentage = 0
+					m.users[i].progress.SetPercent(0)
+				}
 				return m, tickCmd()
 			}
-			data.StateSet(data.StateRunning)
+			m.state = StateRunning
 		}
 		return m, nil
 	case tea.WindowSizeMsg:
@@ -85,14 +80,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.gameOver {
 			cmds = append(cmds, tickCmd())
 		}
-		data.Process(func(users []data.User) {
-			for i := range users {
-				if users[i].Progress.Percent() == float64(users[i].Percentage)/100 {
-					continue
-				}
-				cmds = append(cmds, users[i].Progress.SetPercent(float64(users[i].Percentage)/100))
+		updateUsers(m)
+		for i := range m.users {
+			if m.users[i].progress.Percent() == float64(m.users[i].Percentage)/100 {
+				continue
 			}
-		})
+			cmds = append(cmds, m.users[i].progress.SetPercent(float64(m.users[i].Percentage)/100))
+		}
 		m.updateViewportContent()
 		return m, tea.Batch(cmds...)
 
@@ -100,14 +94,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case progress.FrameMsg:
 		var cmd tea.Cmd
 		var cmds []tea.Cmd
-		data.Process(func(users []data.User) {
-			for i := range users {
-				newModel, newCmd := users[i].Progress.Update(msg)
-				users[i].Progress = newModel.(progress.Model)
-				cmd = newCmd
-				cmds = append(cmds, cmd)
-			}
-		})
+		for i := range m.users {
+			newModel, newCmd := m.users[i].progress.Update(msg)
+			m.users[i].progress = newModel.(progress.Model)
+			cmd = newCmd
+			cmds = append(cmds, cmd)
+		}
 		m.updateViewportContent()
 		return m, tea.Batch(cmds...)
 
