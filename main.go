@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -9,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/joho/godotenv"
 )
 
 var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
@@ -16,6 +19,19 @@ var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
 var m *model
 
 func main() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("Error getting home directory:", err)
+		os.Exit(1)
+	}
+	globalENV := path.Join(homeDir, ".terminal-of-fortune", ".env")
+	_ = godotenv.Overload(globalENV)
+
+	wd := os.Getenv("WD")
+	if wd != "" {
+		os.Chdir(wd)
+	}
+
 	ti := textinput.New()
 	ti.Placeholder = "New User"
 	ti.Focus()
