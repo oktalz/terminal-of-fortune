@@ -59,9 +59,13 @@ func (m *model) updateViewportContent() {
 			Padding(1, 3)
 
 		var ui string
+		var winner string
+		if m.winner > -1 && m.winner < len(m.users) {
+			winner = m.users[m.winner].Name
+		}
 		ui = lipgloss.Place(m.w, m.h,
 			lipgloss.Right, lipgloss.Top,
-			winnerStyle.Render(m.users[m.winner].Name),
+			winnerStyle.Render(winner),
 		)
 
 		rendered := lipgloss.NewStyle().Render(ui)

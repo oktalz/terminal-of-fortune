@@ -68,6 +68,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for i := range m.users {
 					m.users[i].progress.Width = m.w - padding*2 - 4 - m.maxNameLen - 1
 				}
+				m.winner = -1
 				m.state = StatePaused
 			case "esc":
 				m.state = StatePaused
@@ -101,13 +102,17 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "i", "insert":
-			if m.state != StatePaused {
+			if m.state != StatePaused && m.state != StateFinished {
 				// curently its not safe to do it while running
 				return m, nil
 			}
 			m.state = StateAddUser
 			return m, nil
 		case "d", "delete":
+			if m.state != StatePaused && m.state != StateFinished {
+				// curently its not safe to do it while running
+				return m, nil
+			}
 			m.state = StateDeleteUser
 			m.selectedUser = 0
 			return m, nil
