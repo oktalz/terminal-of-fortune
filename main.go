@@ -78,5 +78,9 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		fmt.Print(err)
 	}
-	fmt.Println("└" + strings.Repeat("─", m.w-2) + "┘")
+	rep := m.w - 2
+	if rep < 0 {
+		rep = 0
+	}
+	fmt.Println("└" + strings.Repeat("─", rep) + "┘")
 }

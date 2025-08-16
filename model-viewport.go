@@ -70,7 +70,11 @@ func (m *model) updateViewportContent() {
 
 		for i := range lines {
 			trimed := strings.TrimLeft(linesWinner[i], " ")
-			space := strings.Repeat(" ", m.w-len(trimedName)-12)
+			rep := m.w - len(trimedName) - 12
+			if rep < 0 {
+				rep = 0
+			}
+			space := strings.Repeat(" ", rep)
 			if i == 1 {
 				space += " "
 			}
