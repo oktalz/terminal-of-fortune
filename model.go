@@ -40,6 +40,7 @@ type model struct {
 	selectedUser int
 	choices      []string
 	cursor       int
+	exitTime     time.Time
 }
 
 func tickCmd() tea.Cmd {

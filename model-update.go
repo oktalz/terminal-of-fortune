@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
@@ -75,8 +76,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch msg.String() {
 		case "ctrl+c", "q":
-			m.state = StateFinished
-			return m, tea.Quit
+			m.state = StateExit
+			m.exitTime = time.Now()
+			m.h = m.h - 1
+			// return m, tea.Quit
+			cmd := func() tea.Msg {
+				return tea.WindowSizeMsg{Width: m.w, Height: m.h}
+			}
+			return m, cmd
 		case "r":
 			if m.state != StatePaused {
 				// curently its not safe to do it while running
@@ -146,6 +153,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateSize(msg.Width, msg.Height)
 		return m, nil
 	case tickMsg:
+		if m.state == StateExit {
+			if time.Now().After(m.exitTime) {
+				return m, tea.Quit
+			} else {
+				return m, tickCmd()
+			}
+		}
 		if m.gameOver {
 			return m, nil
 		}
@@ -184,5 +198,4 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		return m, nil
 	}
-	return m, nil
 }
