@@ -8,6 +8,42 @@ import (
 )
 
 func (m *model) updateViewportContent() {
+	if m.state == StateChooseFile {
+		s := "Select file\n"
+		for i, choice := range m.choices {
+			if i == m.cursor {
+				s += "> "
+			} else {
+				s += "  "
+			}
+			s += choice + "\n"
+		}
+		m.vp.SetContent(logo + "\n\n" + s)
+		return
+	}
+	if m.state == StateAddUser {
+		input := fmt.Sprintf(
+			"Enter new user name\n\n%s\n\n%s",
+			m.textInput.View(),
+			"(esc to quit)",
+		) + "\n"
+		m.vp.SetContent(logo + "\n\n" + input)
+		return
+	}
+	if m.state == StateDeleteUser {
+		s := "Select user to delete:\n\n"
+		for i, u := range m.users {
+			if i == m.selectedUser {
+				s += fmt.Sprintf("> %s\n", u.Name)
+			} else {
+				s += fmt.Sprintf("  %s\n", u.Name)
+			}
+		}
+		s += "\n(esc to quit)"
+		m.vp.SetContent(logo + "\n\n" + s)
+		return
+	}
+
 	if m.gameOver {
 		m.vp.SetContent("")
 		return

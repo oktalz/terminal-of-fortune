@@ -28,19 +28,12 @@ func readFiles() {
 		os.Exit(1)
 	case 1:
 		userFile = files[0]
-	default:
-		userFile, err = runChooser(files)
-		if err != nil {
-			fmt.Println("Error running chooser:", err)
+		if err := readUsers(userFile); err != nil {
+			fmt.Println("Error reading users:", err)
 			os.Exit(1)
 		}
-		if userFile == "" {
-			os.Exit(0)
-		}
-	}
-
-	if err := readUsers(userFile); err != nil {
-		fmt.Println("Error reading users:", err)
-		os.Exit(1)
+	default:
+		m.state = StateChooseFile
+		m.choices = files
 	}
 }

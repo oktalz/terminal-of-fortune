@@ -6,6 +6,8 @@ import (
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/charmbracelet/bubbles/progress"
 )
 
 func readUsers(filename string) error {
@@ -18,6 +20,12 @@ func readUsers(filename string) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		m.users = append(m.users, User{Name: scanner.Text()})
+		m.users[len(m.users)-1].progress = progress.New(progress.WithDefaultGradient())
+		m.users[len(m.users)-1].progress.Init()
+	}
+	m.recalculateMaxNameLen()
+	for i := range m.users {
+		m.users[i].progress.Width = m.w - padding*2 - 4 - m.maxNameLen - 1
 	}
 	// randomise users
 	for i := len(m.users) - 1; i > 0; i-- {

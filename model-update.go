@@ -8,14 +8,77 @@ import (
 )
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.state == StateChooseFile {
+			switch msg.String() {
+			case "up":
+				if m.cursor > 0 {
+					m.cursor--
+				}
+			case "down":
+				if m.cursor < len(m.choices)-1 {
+					m.cursor++
+				}
+			case "enter":
+				readUsers(m.choices[m.cursor])
+				m.state = StatePaused
+			}
+			return m, nil
+		}
+		if m.state == StateAddUser {
+			switch msg.String() {
+			case "enter":
+				if m.textInput.Value() == "" {
+					m.state = StatePaused
+					return m, nil
+				}
+				m.users = append(m.users, User{Name: m.textInput.Value()})
+				m.recalculateMaxNameLen()
+				m.users[len(m.users)-1].progress = progress.New(progress.WithDefaultGradient())
+				for i := range m.users {
+					m.users[i].progress.Width = m.w - padding*2 - 4 - m.maxNameLen - 1
+				}
+				m.textInput.Reset()
+				m.state = StatePaused
+				return m, nil
+			case "esc":
+				m.state = StatePaused
+				return m, nil
+			}
+			m.textInput, cmd = m.textInput.Update(msg)
+			return m, cmd
+		}
+		if m.state == StateDeleteUser {
+			switch msg.String() {
+			case "up":
+				if m.selectedUser > 0 {
+					m.selectedUser--
+				}
+			case "down":
+				if m.selectedUser < len(m.users)-1 {
+					m.selectedUser++
+				}
+			case "enter":
+				m.users = append(m.users[:m.selectedUser], m.users[m.selectedUser+1:]...)
+				m.recalculateMaxNameLen()
+				for i := range m.users {
+					m.users[i].progress.Width = m.w - padding*2 - 4 - m.maxNameLen - 1
+				}
+				m.state = StatePaused
+			case "esc":
+				m.state = StatePaused
+			}
+			return m, nil
+		}
 		switch msg.String() {
 		case "ctrl+c", "q":
 			m.state = StateFinished
 			return m, tea.Quit
 		case "r":
-			if m.state != StateRunning {
+			if m.state != StatePaused {
 				// curently its not safe to do it while running
 				return m, nil
 			}
@@ -29,6 +92,17 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.winner = i
 				}
 			}
+			return m, nil
+		case "i", "insert":
+			if m.state != StatePaused {
+				// curently its not safe to do it while running
+				return m, nil
+			}
+			m.state = StateAddUser
+			return m, nil
+		case "d", "delete":
+			m.state = StateDeleteUser
+			m.selectedUser = 0
 			return m, nil
 		// case "delete":
 		// 	if m.state != StateRunning {
@@ -110,4 +184,5 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		return m, nil
 	}
+	return m, nil
 }

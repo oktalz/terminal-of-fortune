@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,12 +16,19 @@ var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
 var m *model
 
 func main() {
+	ti := textinput.New()
+	ti.Placeholder = "New User"
+	ti.Focus()
+	ti.CharLimit = 15
+	ti.Width = 20
+
 	m = &model{
-		w:      1,
-		h:      1,
-		vp:     viewport.New(1, 1),
-		winner: -1,
-		state:  StatePaused,
+		w:         1,
+		h:         1,
+		vp:        viewport.New(1, 1),
+		winner:    -1,
+		state:     StatePaused,
+		textInput: ti,
 	}
 	readFiles()
 
@@ -41,4 +50,5 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		fmt.Print(err)
 	}
+	fmt.Println("└" + strings.Repeat("─", m.w-2) + "┘")
 }

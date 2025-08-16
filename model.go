@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -26,15 +27,19 @@ type User struct {
 }
 
 type model struct {
-	w           int
-	h           int
-	vp          viewport.Model
-	maxNameLen  int
-	gameOver    bool
-	raceStarted bool
-	users       []User
-	winner      int
-	state       state
+	w            int
+	h            int
+	vp           viewport.Model
+	maxNameLen   int
+	gameOver     bool
+	raceStarted  bool
+	users        []User
+	winner       int
+	state        state
+	textInput    textinput.Model
+	selectedUser int
+	choices      []string
+	cursor       int
 }
 
 func tickCmd() tea.Cmd {
@@ -44,7 +49,7 @@ func tickCmd() tea.Cmd {
 }
 
 func (m *model) Init() tea.Cmd {
-	return nil
+	return tickCmd()
 }
 
 func (m *model) recalculateMaxNameLen() {
@@ -54,8 +59,8 @@ func (m *model) recalculateMaxNameLen() {
 			m.maxNameLen = len(u.Name)
 		}
 	}
-	if m.maxNameLen > 15 {
-		m.maxNameLen = 15
+	if m.maxNameLen > 35 {
+		m.maxNameLen = 35
 	}
 }
 

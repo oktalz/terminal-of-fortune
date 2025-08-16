@@ -8,4 +8,7 @@ const (
 	StateRunning      state = "Running"
 	StatePaused       state = "Paused"
 	StateFinished     state = "Finished"
+	StateAddUser      state = "AddUser"
+	StateDeleteUser   state = "DeleteUser"
+	StateChooseFile   state = "ChooseFile"
 )
