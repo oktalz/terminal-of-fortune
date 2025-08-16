@@ -129,6 +129,9 @@ func updateUsers(m *model) {
 				}
 			}
 		}
+		if activeUsers == 0 {
+			m.state = StatePaused
+		}
 	case StateWaitProgress:
 		uiUpdateDone := true
 		for i := range m.users {

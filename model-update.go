@@ -102,14 +102,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "i", "insert":
-			if m.state != StatePaused && m.state != StateFinished {
+			if m.state != StatePaused {
 				// curently its not safe to do it while running
 				return m, nil
 			}
 			m.state = StateAddUser
 			return m, nil
 		case "d", "delete":
-			if m.state != StatePaused && m.state != StateFinished {
+			if m.state != StatePaused {
 				// curently its not safe to do it while running
 				return m, nil
 			}
@@ -130,9 +130,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	})
 		// 	return m, nil
 		case "s", "c", " ", "enter":
+			newState := StateRunning
 			if !m.raceStarted {
 				m.raceStarted = true
-				m.state = StateRunning
+				m.state = newState
 				return m, tickCmd()
 			}
 			if m.gameOver {
@@ -151,7 +152,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, tickCmd()
 			}
-			m.state = StateRunning
+			m.state = newState
 		}
 		return m, nil
 	case tea.WindowSizeMsg:
