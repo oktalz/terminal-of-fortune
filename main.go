@@ -12,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/joho/godotenv"
+	"github.com/oktalz/terminal-of-fortune/version"
 )
 
 var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
@@ -19,6 +20,17 @@ var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
 var m *model
 
 func main() {
+	_ = version.Set()
+	if len(os.Args) > 1 && os.Args[1] == "-v" {
+		fmt.Println(logo)
+		fmt.Println("terminal-of-fortune", version.Version)
+		fmt.Println("built-from", version.Repo)
+		if version.CommitDate != "" {
+			fmt.Println("commit-date", version.CommitDate)
+		}
+		os.Exit(0)
+	}
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Println("Error getting home directory:", err)
