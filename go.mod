@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.6
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/joho/godotenv v1.5.1
+	github.com/oktalz/version v1.0.1
 )
 
 require (

@@ -12,7 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/joho/godotenv"
-	"github.com/oktalz/terminal-of-fortune/version"
+	"github.com/oktalz/version"
 )
 
 var textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
