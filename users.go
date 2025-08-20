@@ -69,6 +69,7 @@ func updateUsers(m *model) {
 			m.users[m.winner].Removed = true
 			m.users[m.winner].Percentage = 0
 			m.winner = -1
+			m.lastUserUpdate = time.Now()
 		}
 		activeUsers := len(m.users)
 		for i := range m.users {
@@ -76,6 +77,15 @@ func updateUsers(m *model) {
 				activeUsers--
 			}
 		}
+		if activeUsers == 0 {
+			m.state = StatePaused
+		}
+
+		if time.Since(m.lastUserUpdate) < 125*time.Millisecond {
+			return
+		}
+		m.lastUserUpdate = time.Now()
+
 		for i := range m.users {
 			if m.users[i].Removed {
 				continue
@@ -84,10 +94,7 @@ func updateUsers(m *model) {
 			// 	continue
 			// }
 			if m.users[i].Percentage < 100 {
-				max := 10 - len(m.users) + activeUsers
-				if max < 2 {
-					max = 2
-				}
+				max := 10
 				m.users[i].Percentage += rand.Intn(max)
 				if m.users[i].Percentage > 100 {
 					m.users[i].Percentage = 100
@@ -128,9 +135,6 @@ func updateUsers(m *model) {
 					m.users[i].Percentage = 99
 				}
 			}
-		}
-		if activeUsers == 0 {
-			m.state = StatePaused
 		}
 	case StateWaitProgress:
 		uiUpdateDone := true

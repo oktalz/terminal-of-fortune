@@ -27,20 +27,21 @@ type User struct {
 }
 
 type model struct {
-	w            int
-	h            int
-	vp           viewport.Model
-	maxNameLen   int
-	gameOver     bool
-	raceStarted  bool
-	users        []User
-	winner       int
-	state        state
-	textInput    textinput.Model
-	selectedUser int
-	choices      []string
-	cursor       int
-	exitTime     time.Time
+	w              int
+	h              int
+	vp             viewport.Model
+	maxNameLen     int
+	gameOver       bool
+	raceStarted    bool
+	users          []User
+	winner         int
+	state          state
+	textInput      textinput.Model
+	lastUserUpdate time.Time
+	selectedUser   int
+	choices        []string
+	cursor         int
+	exitTime       time.Time
 }
 
 func tickCmd() tea.Cmd {

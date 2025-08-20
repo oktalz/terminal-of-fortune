@@ -25,9 +25,6 @@ func main() {
 		fmt.Println(logo)
 		fmt.Println("terminal-of-fortune", version.Version)
 		fmt.Println("built-from", version.Repo)
-		if version.CommitDate != "" {
-			fmt.Println("commit-date", version.CommitDate)
-		}
 		os.Exit(0)
 	}
 
