@@ -131,6 +131,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	return m, nil
 		case "s", "c", " ", "enter":
 			newState := StateRunning
+			if m.raceStarted && msg.String() == "s" && m.winner != -1 {
+				m.users[m.winner].Percentage = 0
+				m.users[m.winner].progress.SetPercent(0)
+				m.winner = -1
+				m.state = newState
+				return m, tickCmd()
+			}
+
 			if !m.raceStarted {
 				m.raceStarted = true
 				m.state = newState

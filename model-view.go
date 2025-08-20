@@ -14,7 +14,7 @@ func (m *model) View() string {
 	// currentTime = " "
 
 	if m.state == StatePaused {
-		menu := "(i)nsert (d)elete (r)andomize (c)ontinue (q)uit" + " " + currentTime
+		menu := "(i)nsert (d)elete (r)andomize (s)kip (c)ontinue (q)uit" + " " + currentTime
 		if !m.raceStarted {
 			menu = "(s)tart (i)nsert (d)elete (r)andomize (c)ontinue (q)uit" + " " + currentTime
 		}
