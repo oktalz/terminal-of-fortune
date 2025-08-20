@@ -81,7 +81,18 @@ func updateUsers(m *model) {
 			m.state = StatePaused
 		}
 
-		if time.Since(m.lastUserUpdate) < 125*time.Millisecond {
+		waitTime := 125
+		if activeUsers < 1 {
+			waitTime = 500
+		}
+		if activeUsers < 5 {
+			waitTime += 30 * (5 - activeUsers)
+		}
+		if activeUsers > 15 {
+			waitTime += 25 * (activeUsers - 15)
+		}
+
+		if time.Since(m.lastUserUpdate) < time.Duration(waitTime)*time.Millisecond {
 			return
 		}
 		m.lastUserUpdate = time.Now()
@@ -90,11 +101,15 @@ func updateUsers(m *model) {
 			if m.users[i].Removed {
 				continue
 			}
-			// if m.users[i].progress.IsAnimating() {
-			// 	continue
-			// }
+			if activeUsers < 1 {
+				m.users[i].Percentage = 100
+				continue
+			}
 			if m.users[i].Percentage < 100 {
 				max := 10
+				if activeUsers > 15 {
+					max += (activeUsers - 15) * 5
+				}
 				m.users[i].Percentage += rand.Intn(max)
 				if m.users[i].Percentage > 100 {
 					m.users[i].Percentage = 100

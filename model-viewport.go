@@ -88,23 +88,39 @@ func (m *model) updateViewportContent() {
 	}
 
 	var s strings.Builder
+
+	isOneSpace := len(m.users) > (m.h-len(strings.Split(logoPart, "\n"))-4)/2
+	isTwoColumns := len(m.users) > (m.h - len(strings.Split(logoPart, "\n")) - 4)
+	if isTwoColumns {
+		newWidth := (m.w / 2) - m.maxNameLen - 6 // some padding
+		if newWidth < 1 {
+			newWidth = 1
+		}
+		for i := range m.users {
+			m.users[i].progress.Width = newWidth
+		}
+		isOneSpace = false
+	}
+
 	for i, u := range m.users {
 		name := u.Name
 		if len(name) > m.maxNameLen {
 			name = name[:m.maxNameLen]
 		}
-		if i < len(m.users) {
-			removedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-			// normalStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
-
-			if u.Removed {
-				rendered := removedStyle.Render(fmt.Sprintf(" %-*s", m.maxNameLen, name))
-				rendered = strings.ReplaceAll(rendered, "\n", "")
-				s.WriteString(rendered)
-				s.WriteString("\n\n")
-				continue
+		newLine := true
+		if isTwoColumns {
+			if i%2 == 0 {
+				newLine = false
 			}
-			s.WriteString(fmt.Sprintf(" %-*s %s\n\n", m.maxNameLen, name, m.users[i].progress.View()))
+		}
+		if i < len(m.users) {
+			s.WriteString(m.renderUser(u, newLine, isOneSpace))
+		}
+		if !newLine {
+			s.WriteString("   ") // space between columns
+			if u.Removed {
+				s.WriteString(strings.Repeat(" ", u.progress.Width+1))
+			}
 		}
 	}
 	s.WriteString("\n")
@@ -113,4 +129,31 @@ func (m *model) updateViewportContent() {
 	rendered := textStyle.Width(m.w).Height(m.h).Render(s.String())
 	rendered = logoPart + "\n" + rendered
 	m.vp.SetContent(rendered)
+}
+
+func (m *model) renderUser(u User, newLine, isOneSpace bool) string {
+	nextLine := ""
+	if newLine {
+		if isOneSpace {
+			nextLine = "\n"
+		} else {
+			nextLine = "\n\n"
+		}
+	}
+	name := u.Name
+	if len(name) > m.maxNameLen {
+		name = name[:m.maxNameLen]
+	}
+	removedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	normalStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("45"))
+
+	if u.Removed {
+		rendered := removedStyle.Render(fmt.Sprintf(" %-*s", m.maxNameLen, name))
+		rendered = strings.ReplaceAll(rendered, "\n", "")
+		return rendered + nextLine
+	}
+	rendered := normalStyle.Render(fmt.Sprintf(" %-*s", m.maxNameLen, name))
+	rendered = strings.ReplaceAll(rendered, "\n", "")
+	rendered = fmt.Sprintf("%s %s%s", rendered, u.progress.View(), nextLine)
+	return rendered
 }
